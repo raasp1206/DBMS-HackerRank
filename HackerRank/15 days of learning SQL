@@ -1,0 +1,45 @@
+SELECT 
+    s.submission_date,
+
+    -- Count of consistent hackers
+    (
+        SELECT COUNT(DISTINCT s2.hacker_id)
+        FROM Submissions s2
+        WHERE s2.submission_date = s.submission_date
+        AND s2.hacker_id IN (
+            SELECT hacker_id
+            FROM Submissions
+            WHERE submission_date <= s.submission_date
+            GROUP BY hacker_id
+            HAVING COUNT(DISTINCT submission_date) = 
+                   DAYS(s.submission_date) - DAYS('2016-03-01') + 1
+        )
+    ) AS total_hackers,
+
+    -- Hacker with max submissions
+    (
+        SELECT hacker_id
+        FROM Submissions s3
+        WHERE s3.submission_date = s.submission_date
+        GROUP BY hacker_id
+        ORDER BY COUNT(*) DESC, hacker_id ASC
+        FETCH FIRST 1 ROW ONLY
+    ) AS hacker_id,
+
+    -- Hacker name
+    (
+        SELECT h.name
+        FROM Hackers h
+        WHERE h.hacker_id = (
+            SELECT hacker_id
+            FROM Submissions s4
+            WHERE s4.submission_date = s.submission_date
+            GROUP BY hacker_id
+            ORDER BY COUNT(*) DESC, hacker_id ASC
+            FETCH FIRST 1 ROW ONLY
+        )
+    ) AS name
+
+FROM Submissions s
+GROUP BY s.submission_date
+ORDER BY s.submission_date;
