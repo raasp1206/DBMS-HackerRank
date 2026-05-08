@@ -1,0 +1,21 @@
+SELECT 
+    h.hacker_id,
+    h.name
+FROM Hackers h
+JOIN (
+    SELECT 
+        hacker_id,
+        challenge_id,
+        MAX(score) AS max_score
+    FROM Submissions
+    GROUP BY hacker_id, challenge_id
+) ms
+    ON h.hacker_id = ms.hacker_id
+JOIN Challenges c 
+    ON ms.challenge_id = c.challenge_id
+JOIN Difficulty d 
+    ON c.difficulty_level = d.difficulty_level
+WHERE ms.max_score = d.score
+GROUP BY h.hacker_id, h.name
+HAVING COUNT(*) > 1
+ORDER BY COUNT(*) DESC, h.hacker_id ASC;
