@@ -1,0 +1,14 @@
+SELECT
+    NVL(MAX(CASE WHEN Occupation = 'Doctor' THEN Name END), 'NULL') AS Doctor,
+    NVL(MAX(CASE WHEN Occupation = 'Professor' THEN Name END), 'NULL') AS Professor,
+    NVL(MAX(CASE WHEN Occupation = 'Singer' THEN Name END), 'NULL') AS Singer,
+    NVL(MAX(CASE WHEN Occupation = 'Actor' THEN Name END), 'NULL') AS Actor
+FROM (
+    SELECT 
+        Name,
+        Occupation,
+        ROW_NUMBER() OVER (PARTITION BY Occupation ORDER BY Name) rn
+    FROM OCCUPATIONS
+)
+GROUP BY rn
+ORDER BY rn;
