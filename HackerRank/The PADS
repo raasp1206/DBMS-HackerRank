@@ -1,0 +1,26 @@
+SELECT output
+FROM (
+    SELECT 
+        Name || '(' || SUBSTR(Occupation,1,1) || ')' AS output,
+        1 AS type,
+        Name AS name_sort,
+        0 AS cnt,
+        '' AS occ_sort
+    FROM OCCUPATIONS
+    
+    UNION ALL
+    
+    SELECT 
+        'There are a total of ' || COUNT(*) || ' ' || LOWER(Occupation) || 's.' AS output,
+        2 AS type,
+        '' AS name_sort,
+        COUNT(*) AS cnt,
+        Occupation AS occ_sort
+    FROM OCCUPATIONS
+    GROUP BY Occupation
+) t
+ORDER BY 
+    type,
+    name_sort,
+    cnt,
+    occ_sort;
